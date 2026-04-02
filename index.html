@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tool Hub — Xử lý dữ liệu trường học</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root[data-theme="dark"] {
+    --bg:        #0d0f14;
+    --bg2:       #13161e;
+    --bg3:       #1a1e2a;
+    --border:    rgba(255,255,255,0.07);
+    --border2:   rgba(255,255,255,0.14);
+    --text:      #e8eaf0;
+    --text2:     #8b90a0;
+    --text3:     #555a6a;
+    --accent:    #4f8ef7;
+    --accent2:   #7cb9ff;
+    --glow:      rgba(79,142,247,0.18);
+    --tag-bg:    rgba(79,142,247,0.12);
+    --tag-text:  #7cb9ff;
+    --btn-bg:    rgba(79,142,247,0.15);
+    --btn-hover: rgba(79,142,247,0.28);
+    --card-hover:#1e2335;
+    --mono:      'JetBrains Mono', monospace;
+  }
+  :root[data-theme="light"] {
+    --bg:        #f4f5f8;
+    --bg2:       #ffffff;
+    --bg3:       #eef0f5;
+    --border:    rgba(0,0,0,0.07);
+    --border2:   rgba(0,0,0,0.14);
+    --text:      #1a1d26;
+    --text2:     #5a6070;
+    --text3:     #aab0c0;
+    --accent:    #2563eb;
+    --accent2:   #1d4ed8;
+    --glow:      rgba(37,99,235,0.12);
+    --tag-bg:    rgba(37,99,235,0.08);
+    --tag-text:  #2563eb;
+    --btn-bg:    rgba(37,99,235,0.09);
+    --btn-hover: rgba(37,99,235,0.18);
+    --card-hover:#f0f2fa;
+    --mono:      'JetBrains Mono', monospace;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* Grid noise bg */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .page { position: relative; z-index: 1; max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem 4rem; }
+
+  /* ── TOP NAV ── */
+  .topnav {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 3rem;
+  }
+  .logo {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--text3);
+    letter-spacing: 0.04em;
+  }
+  .logo span { color: var(--accent); }
+
+  .toggle-btn {
+    background: var(--bg3);
+    border: 1px solid var(--border2);
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 13px;
+    color: var(--text2);
+    cursor: pointer;
+    display: flex; align-items: center; gap: 6px;
+    transition: background 0.2s, color 0.2s;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .toggle-btn:hover { background: var(--border2); color: var(--text); }
+  .toggle-icon { font-size: 15px; }
+
+  /* ── HERO ── */
+  .hero { margin-bottom: 3rem; }
+  .hero-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--tag-bg);
+    border: 1px solid rgba(79,142,247,0.2);
+    border-radius: 4px;
+    padding: 4px 10px;
+    margin-bottom: 1rem;
+  }
+  .hero h1 {
+    font-size: clamp(26px, 4vw, 38px);
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+  .hero p {
+    font-size: 15px;
+    color: var(--text2);
+    max-width: 520px;
+    line-height: 1.65;
+  }
+
+  /* ── STATS BAR ── */
+  .stats {
+    display: flex; gap: 2rem;
+    margin-bottom: 2.5rem;
+    padding: 1rem 1.25rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .stat-item { display: flex; flex-direction: column; gap: 2px; }
+  .stat-num {
+    font-family: var(--mono);
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+  .stat-label { font-size: 12px; color: var(--text3); }
+
+  /* ── SECTION LABEL ── */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text3);
+    margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* ── CARDS GRID ── */
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: 14px;
+    margin-bottom: 2rem;
+  }
+
+  @media (max-width: 600px) {
+    .grid { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.2s, border-color 0.2s, transform 0.15s;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--stripe);
+    opacity: 0.85;
+  }
+  .card:hover {
+    background: var(--card-hover);
+    border-color: var(--border2);
+    transform: translateY(-2px);
+  }
+
+  .card-head { display: flex; align-items: flex-start; gap: 12px; }
+  .card-icon {
+    width: 42px; height: 42px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    background: var(--icon-bg);
+    border: 1px solid var(--icon-border);
+  }
+  .card-meta { flex: 1; }
+  .card-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--text3);
+    letter-spacing: 0.08em;
+    margin-bottom: 3px;
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .card-desc {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.6;
+    flex: 1;
+  }
+
+  .card-footer { display: flex; align-items: center; justify-content: space-between; }
+  .card-tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    border: 1px solid rgba(79,142,247,0.15);
+  }
+  .card-btn {
+    display: flex; align-items: center; gap: 5px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--accent);
+    background: var(--btn-bg);
+    border: 1px solid rgba(79,142,247,0.2);
+    border-radius: 6px;
+    padding: 5px 12px;
+    transition: background 0.2s;
+    text-decoration: none;
+  }
+  .card-btn:hover { background: var(--btn-hover); }
+  .card-btn svg { width: 12px; height: 12px; }
+
+  /* individual card colors via CSS vars */
+  .card:nth-child(1) { --stripe: #4f8ef7; --icon-bg: rgba(79,142,247,0.1); --icon-border: rgba(79,142,247,0.2); }
+  .card:nth-child(2) { --stripe: #34d399; --icon-bg: rgba(52,211,153,0.1); --icon-border: rgba(52,211,153,0.2); }
+  .card:nth-child(3) { --stripe: #f97316; --icon-bg: rgba(249,115,22,0.1); --icon-border: rgba(249,115,22,0.2); }
+  .card:nth-child(4) { --stripe: #a78bfa; --icon-bg: rgba(167,139,250,0.1); --icon-border: rgba(167,139,250,0.2); }
+  /* thêm app thứ 5+ chỉ cần thêm màu ở đây */
+  .card:nth-child(5) { --stripe: #f43f5e; --icon-bg: rgba(244,63,94,0.1); --icon-border: rgba(244,63,94,0.2); }
+  .card:nth-child(6) { --stripe: #fbbf24; --icon-bg: rgba(251,191,36,0.1); --icon-border: rgba(251,191,36,0.2); }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .footer p { font-size: 12px; color: var(--text3); font-family: var(--mono); }
+
+  /* ── ADD CARD hint ── */
+  .add-hint {
+    border: 1.5px dashed var(--border2);
+    border-radius: 14px;
+    padding: 1.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--text3);
+    font-size: 13px;
+    cursor: default;
+    background: transparent;
+  }
+  .add-hint span { font-size: 20px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- NAV -->
+  <nav class="topnav">
+    <div class="logo"><span>//</span> tool-hub.school</div>
+    <button class="toggle-btn" onclick="toggleTheme()">
+      <span class="toggle-icon" id="themeIcon">☀️</span>
+      <span id="themeLabel">Light mode</span>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-tag">Bộ công cụ nội bộ</div>
+    <h1>Xử lý dữ liệu<br/><em>trường học</em> nhanh hơn</h1>
+    <p>Tất cả các tool xử lý danh sách, phân công, tách lớp đều ở đây — không cần nhớ nhiều link.</p>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat-item">
+      <span class="stat-num" id="appCount">4</span>
+      <span class="stat-label">Tool hoạt động</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">Excel</span>
+      <span class="stat-label">Định dạng hỗ trợ</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num">Free</span>
+      <span class="stat-label">Không cần tài khoản</span>
+    </div>
+  </div>
+
+  <!-- CARDS -->
+  <div class="section-label">Danh sách tool</div>
+
+  <div class="grid" id="appGrid">
+
+    <!-- APP 1 -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">📥</div>
+        <div class="card-meta">
+          <div class="card-num">TOOL · 01</div>
+          <div class="card-title">Nạp dữ liệu phân công chuyên môn</div>
+        </div>
+      </div>
+      <div class="card-desc">Chuyển đổi các file định dạng khác nhau về file mẫu import chuẩn. Hỗ trợ nhiều loại file đầu vào.</div>
+      <div class="card-footer">
+        <span class="card-tag">IMPORT / CONVERT</span>
+        <a class="card-btn" href="https://pccm-v1.streamlit.app/" target="_blank" rel="noopener">
+          Mở tool
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- APP 2 -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">✂️</div>
+        <div class="card-meta">
+          <div class="card-num">TOOL · 02</div>
+          <div class="card-title">Tách Họ tên — Lớp</div>
+        </div>
+      </div>
+      <div class="card-desc">Tự động tách họ tên và lớp ra các cột riêng biệt từ file danh sách gộp chung.</div>
+      <div class="card-footer">
+        <span class="card-tag">SPLIT / CLEAN</span>
+        <a class="card-btn" href="https://tach-lop-ten.streamlit.app/" target="_blank" rel="noopener">
+          Mở tool
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- APP 3 -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">📂</div>
+        <div class="card-meta">
+          <div class="card-num">TOOL · 03</div>
+          <div class="card-title">Tách từng lớp ra file riêng</div>
+        </div>
+      </div>
+      <div class="card-desc">Tách danh sách theo lớp thành file Excel riêng. Nếu có nhiều sheet cùng tên lớp, file mới sẽ gom đủ các sheet đó.</div>
+      <div class="card-footer">
+        <span class="card-tag">SPLIT / EXPORT</span>
+        <a class="card-btn" href="https://tachlop-ra-tung-file.streamlit.app/" target="_blank" rel="noopener">
+          Mở tool
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- APP 4 -->
+    <div class="card">
+      <div class="card-head">
+        <div class="card-icon">🔗</div>
+        <div class="card-meta">
+          <div class="card-num">TOOL · 04</div>
+          <div class="card-title">Gộp lớp từ nhiều sheet</div>
+        </div>
+      </div>
+      <div class="card-desc">Gộp nhiều sheet trong một file thành sheet thống nhất. Các cột gộp: Lớp, Họ tên, Ngày sinh, Giới tính.</div>
+      <div class="card-footer">
+        <span class="card-tag">MERGE / COMBINE</span>
+        <a class="card-btn" href="https://merge-sheet-in-one-file.streamlit.app/" target="_blank" rel="noopener">
+          Mở tool
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 6h8M6 2l4 4-4 4"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- PLACEHOLDER — thêm app mới vào đây -->
+    <div class="add-hint" id="addHint">
+      <span>＋</span>
+      Thêm app mới bằng cách copy một khối &lt;div class="card"&gt; ở trên
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <p>// cập nhật thủ công · thêm card = thêm &lt;div class="card"&gt;</p>
+    <p id="footerCount">4 tools · school data hub</p>
+  </div>
+
+</div>
+
+<script>
+  function toggleTheme() {
+    const html = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+    document.getElementById('themeIcon').textContent = isDark ? '🌙' : '☀️';
+    document.getElementById('themeLabel').textContent = isDark ? 'Dark mode' : 'Light mode';
+  }
+
+  // Auto count real cards (excludes the add-hint placeholder)
+  const realCards = document.querySelectorAll('#appGrid .card').length;
+  document.getElementById('appCount').textContent = realCards;
+  document.getElementById('footerCount').textContent = realCards + ' tools · school data hub';
+</script>
+</body>
+</html>
